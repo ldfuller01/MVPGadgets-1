@@ -14,48 +14,55 @@ Gadget_Prices:
 
 # In which worlds will players receive the Gadget Selector gadget upon login?
 # You should put your hub worlds in this setting. Delete the original list if you want to; it's just an example.
-guiGadgetWorlds:
-- Hub
-- Spawn
+# If you want gadgets to be usable in all worlds, set it to an empty list e.g. guiGadgetWorlds: []
+# Example configuration:
+# guiGadgetWorlds:
+# - Spawn
+# - Hub
+guiGadgetWorlds: []
+
+# Do you want the players to be able to drop their gadgets?
+# If you do, set this to 'true'.
+allowDropping: false
+
 # In which slot in the player's hotbar should the Gadget Selector be placed? (5 is the middle)
 guiGadgetSlot: 5
 
-## Disguise Gadget Settings ##
-# This is a list of mobs that the players can disguise as (Look at mob cannon settings for a list of mobs)
-Disguises_List:
-- BLAZE
-- SHEEP
-- WOLF
-- IRON_GOLEM
-- ZOMBIE
-- SKELETON
+# In which slot in the player's hotbar should the other Gadgets be placed ( default = 6 )
+gadgetSlot: 6
 
-## Mob Cannon Settings ##
-# Available mob types (caps don't matter):
-# BAT
-# BLAZE
-# CAVE_SPIDER
-# CHICKEN
-# COW
-# CREEPER
-# ENDERMAN
-# GIANT
-# HORSE
-# IRON_GOLEM
-# MUSHROOM_COW
-# OCELOT
-# PIG
-# PIG_ZOMBIE
-# SHEEP
-# SILVERFISH
-# SKELETON
-# SNOWMAN
-# SPIDER
-# SQUID (Notice: Squid doesn't launch very far, just spawns and drops.)
-# VILLAGER
-# WITCH
-# WOLF
-# ZOMBIE
+## Disguise Gadget Settings ##
+# This is a list of mobs that the players can disguise as (Look below for a list of mobs)
+Disguises_List:
+- BAT
+- BLAZE
+- CAVE_SPIDER
+- CHICKEN
+- COW
+- CREEPER
+- ENDERMAN
+- HORSE
+- IRON_GOLEM
+- MOOSHROOM
+- OCELOT
+- PIG
+- SHEEP
+- SILVERFISH
+- SKELETON
+- SNOWMAN
+- SPIDER
+- ZOMBIE_PIG
+- GUARDIAN
+- ENDERMITE
+- POLAR_BEAR
+
+### Available mobs
+# ZOMBIE, WITHER_SKELETON, SKELETON, ZOMBIE_PIG, BLAZE
+# ENDERMAN, CREEPER, SPIDER, WITCH, WITHER_BOSS, GHAST
+# GIANT, SLIME, CAVE_SPIDER, SILVERFISH, MAGMA_CUBE
+# BAT, PIG, SHEEP, COW, CHICKEN, SQUID, WOLF, OCELOT
+# HORSE, VILLAGER, IRON_GOLEM, SNOWMAN, ENDER_DRAGON
+# MOOSHROOM, GUARDIAN, ENDERMITE, RABBIT, POLAR_BEAR
 
 # Enabling this means the plugin will use all of the mobs above except for
 # the ones you list in the blacklist below.

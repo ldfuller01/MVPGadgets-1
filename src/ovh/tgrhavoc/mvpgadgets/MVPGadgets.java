@@ -5,15 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Constructor;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.HashSet;
 import java.util.Set;
-
-import me.pookeythekid.mobcannon.MobCannon;
-import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -21,6 +14,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import me.pookeythekid.MobCannon.MobCannon;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.permission.Permission;
 import ovh.tgrhavoc.mvpgadgets.commands.GUIGadgetCommand;
 import ovh.tgrhavoc.mvpgadgets.commands.MVPGadgetsCommand;
 import ovh.tgrhavoc.mvpgadgets.events.GadgetHandler;
@@ -31,60 +27,60 @@ import ovh.tgrhavoc.mvpgadgets.gadgets.horse.HorseGadget;
 import ovh.tgrhavoc.mvpgadgets.gadgets.mobcannon.MobCannonGadget;
 import ovh.tgrhavoc.mvpgadgets.gadgets.paintballgun.PaintballGunGadget;
 import ovh.tgrhavoc.mvpgadgets.gadgets.paintballgun.PaintballListener;
-import ovh.tgrhavoc.mvpvpgadgets.tests.JarUtil;
 import ovh.tgrhavoc.utils.VaultUtil;
 
 public class MVPGadgets extends JavaPlugin {
-	
+
 	static Set<Gadget> availableGadgets = new HashSet<Gadget>();
 	private YamlConfiguration messages;
 	private MobCannon mobCannon;
-	private PaintballListener paintListener = new PaintballListener(this);
-	
+
 	private static Economy economy = null;
 	private static Permission permission = null;
-	
-	public static String nmsVersion = "v1_8_R3";
-	
-	@Override
-	public void onDisable(){
-		paintListener.disable();
-	}
-	
+
+	private static String nmsVersion = Bukkit.getServer().getClass().getPackage().getName()
+			.substring(23);
+
+	private PaintballListener paintListener;
+
 	@Override
 	public void onEnable(){
 		saveDefaultConfig();
 		initConfigs();
-		
+
 		if (getConfig().getBoolean("vault"))
 			initVault();
-		
+
 		getServer().getPluginManager().registerEvents(new GadgetHandler(this), this);
-		
-		registerGadgets();
-		//registerGadetEvents();
+
+		registerGadgets(); // Gadgets should register their own events.
+
 		registerCommands();
+
+		Bukkit.getLogger().info("Hey, our NMS version is " + nmsVersion);
 	}
-	
+
+	@Override
+	public void onDisable(){
+		if (paintListener != null)
+			paintListener.disable();
+	}
+
 	private void registerGadgets() {
 		mobCannon = new MobCannon(this, null);
-		
+
 		addGadget(new HorseGadget(this));
 		addGadget(new MobCannonGadget(this));
 		addGadget(new PaintballGunGadget(this));
 		addGadget(new DisguiseGadget(this));
-		
+
 		addGadget(new GUIGadget(this));
 	}
-	@SuppressWarnings("unused")
-	@Deprecated
-	private void registerGadetEvents() {
-		getServer().getPluginManager().registerEvents(paintListener, this); //Going to keep this here for now.
-	}
+
 	private void registerCommands(){
 		getCommand("gadget").setExecutor(new GUIGadgetCommand(this));
 		getCommand("mvpgadgets").setExecutor(new MVPGadgetsCommand(this));
-		
+
 		mobCannon.reloadCannon();
 		getCommand("mobcannon").setExecutor(mobCannon);
 		getCommand("mobcannonreload").setExecutor(mobCannon);
@@ -92,7 +88,7 @@ public class MVPGadgets extends JavaPlugin {
 		getCommand("moblist").setExecutor(mobCannon);
 		getCommand("mobnames").setExecutor(mobCannon);
 	}
-	
+
 	/**
 	 * Get the instance of the {@link me.pookeythekid.mobcannon.MobCannon MobCannon} class used by this plugin.
 	 * @return MobCannon used by the plugin
@@ -100,7 +96,7 @@ public class MVPGadgets extends JavaPlugin {
 	public MobCannon getMobCannon(){
 		return mobCannon;
 	}
-	
+
 	// Also used in MVPGadgetsCommand class as a reloading method
 	public void initConfigs(){
 		//Messages.yml
@@ -112,12 +108,12 @@ public class MVPGadgets extends JavaPlugin {
 		}
 		messages = YamlConfiguration.loadConfiguration(messagesFile);
 		//End messages.yml
-		
+
 	}
-	
+
 	private void writeToFile(InputStream in, File file) throws IOException{
 		OutputStream out = new FileOutputStream(file);
-		
+
 		byte[] buffer = new byte[1024];
 		int bytesRead;
 		while((bytesRead = in.read(buffer)) !=-1){
@@ -126,17 +122,17 @@ public class MVPGadgets extends JavaPlugin {
 		in.close();
 		out.flush();
 		out.close();
-		
+
 	}
-	
+
 	/**
 	 * Get the messages.yml file in a YamlConfiguration class.
-	 * @return YamlConfiguration that represnts the Messages.yml file in the resources folder
+	 * @return YamlConfiguration that represents the Messages.yml file in the resources folder
 	 */
 	public YamlConfiguration getMessages(){
 		return messages;
 	}
-	
+
 	/**
 	 * Get the price of a gadget.
 	 * @param gadget Gadget you want to get the price for
@@ -145,7 +141,7 @@ public class MVPGadgets extends JavaPlugin {
 	public double getGadgetPrice(Gadget gadget){
 		return getGadgetPrice(gadget.getGadgetName());
 	}
-	
+
 	/**
 	 * Get the price of a gadget.
 	 * @param gadgetName The gadget's name you want to check. You can do this by calling the {@link gadgets.Gadget#getGadgetName getGadgetName()} method in the Gadget
@@ -154,7 +150,7 @@ public class MVPGadgets extends JavaPlugin {
 	public double getGadgetPrice(String gadgetName){
 		return getConfig().getDouble("Gadget_Prices." + gadgetName, 10.0d);
 	}
-	
+
 	/**
 	 * Add a gadget to the list (This will allow it to appear in the Gadget selector)
 	 * @param g Gadget to add to the list.
@@ -164,14 +160,7 @@ public class MVPGadgets extends JavaPlugin {
 			Bukkit.getLogger().info("Someone tried to register a gadget that already exists");
 			return;
 		}
-		if (g.getOwningPlayer() != null) {
-			try {
-				// add simple-constructed gadget, not the kind that has its events registered
-				Gadget gadget = g.getClass().getConstructor(MVPGadgets.class).newInstance(g.getPlugin());
-				availableGadgets.add(gadget);
-				return;
-			} catch (Exception ex){ ex.printStackTrace(); }
-		}
+
 		availableGadgets.add(g);
 	}
 
@@ -184,17 +173,10 @@ public class MVPGadgets extends JavaPlugin {
 			Bukkit.getLogger().info("Someone tried to register a gadget that already exists");
 			return;
 		}
-		if (g.getOwningPlayer() != null) {
-			try {
-				// add simple-constructed gadget, not the kind that has its events registered
-				Gadget gadget = g.getClass().getConstructor(MVPGadgets.class).newInstance(g.getPlugin());
-				availableGadgets.add(gadget);
-				return;
-			} catch (Exception ex){ ex.printStackTrace(); }
-		}
+
 		availableGadgets.add(g);
 	}
-	
+
 	/**
 	 * Get the list of the gadgets that are available to use. These instances do not
 	 * have their events registered to the server, nor do they have a Player owner, so
@@ -205,7 +187,7 @@ public class MVPGadgets extends JavaPlugin {
 	public Set<Gadget> getGadgets(){
 		return availableGadgets;
 	}
-	
+
 	/**
 	 * Get a message from the messages.yml file
 	 * This method automatically translates the character '&' in the string to the proper colour code.
@@ -215,7 +197,7 @@ public class MVPGadgets extends JavaPlugin {
 	public String getMessageFromConfig(String messagePath){
 		return ChatColor.translateAlternateColorCodes('&', getMessages().getString(messagePath));
 	}
-	
+
 	//Start Vault hook
 	/**
 	 * Check if this plugin was able to successfully hook into the vault plugin (Permission and Economy)
@@ -224,7 +206,7 @@ public class MVPGadgets extends JavaPlugin {
 	public boolean hookedVault(){
 		return (economy != null && permission != null);
 	}
-	
+
 	/**
 	 * Get the Economy class
 	 * @return Economy class as provided by Vault
@@ -232,7 +214,7 @@ public class MVPGadgets extends JavaPlugin {
 	public Economy getEconomy(){
 		return economy;
 	}
-	
+
 	/**
 	 * Get the Permission class
 	 * @return Permission class as provided by Vault
@@ -240,7 +222,7 @@ public class MVPGadgets extends JavaPlugin {
 	public Permission getPermission(){
 		return permission;
 	}
-	
+
 	private void initVault(){
 		if (!setupEconomy())
 			Bukkit.getLogger().info("Sorry, couldn't hook economy plugin. Maybe you don't have one installed?");
@@ -252,8 +234,9 @@ public class MVPGadgets extends JavaPlugin {
 			Bukkit.getLogger().info("Vault permissions hooked");
 		VaultUtil.setPlugin(this);
 	}
+
 	private boolean setupPermissions() {
-		RegisteredServiceProvider<Permission> permissionProvider = 
+		RegisteredServiceProvider<Permission> permissionProvider =
 				getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
 		if (permissionProvider != null) {
 			permission = permissionProvider.getProvider();
@@ -262,8 +245,9 @@ public class MVPGadgets extends JavaPlugin {
 			return false;
 		return (permission != null);
 	}
+
 	private boolean setupEconomy(){
-		RegisteredServiceProvider<Economy> economyProvider = 
+		RegisteredServiceProvider<Economy> economyProvider =
 				getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
 	    if (economyProvider != null) {
 	    	economy = economyProvider.getProvider();
@@ -271,74 +255,15 @@ public class MVPGadgets extends JavaPlugin {
 	    return (economy != null);
     }
 	//End vault hook
-	
-	//Method which loads .class files found in the "mods" folder so you can dynamically add or remove gadgets
-	@SuppressWarnings({ "unused", "unchecked" })
-	@Deprecated
-    private void loadGadgetClasses() {
-        File basePath = new File(this.getDataFolder() + "/mods");
-        File[] files = new File(this.getDataFolder() + "/mods").listFiles();
 
-        boolean shouldLoad = true;
+	public void setPaintListener(PaintballListener listener){
+		if (this.paintListener != null)
+			return;
 
-        ClassLoader cl = null;
+		this.paintListener = listener;
+	}
 
-        try {
-            URL url = basePath.toURL();
-            URL[] urls = new URL[]{url};
-            cl = new URLClassLoader(urls);
-        } catch (Exception e) {
-            shouldLoad = false;
-            e.printStackTrace();
-        }
-
-        if (shouldLoad) {
-            for (File file : files) {
-                String fileName = file.getName();
-                //If it is not a .class file contiue to the next entry.
-                if (!fileName.split(".")[fileName.split(".").length - 1].equals(".class")) continue;
-
-                try {
-
-                    @SuppressWarnings("rawtypes")
-					Class clazz = cl.loadClass(fileName.replace(".class",""));
-                    //Our .class file extends Gadget
-                    if(clazz.isAssignableFrom(Gadget.class)){
-                        Gadget gadget = (Gadget) clazz.newInstance();
-                        addGadget(gadget);
-                    }
-
-                } catch (Exception e) {
-
-                }
-            }
-        }
-    }
-
-	@Deprecated
-	public void test(){
-		for (String s: JarUtil.getGadetClasses(this.getDataFolder().getParent() + "/MVPGadgets.jar")){
-			try {
-				System.out.println("Constructing... " + s);
-				
-				if (s.contains("\\$[0-9]"))
-					System.out.println("Found funny class: " + s);
-				
-				Class<?> gadgetClass = Class.forName(s);
-				Constructor<?> constr = gadgetClass.getConstructor();
-				Gadget gadgetFromClass = null;
-				if (constr.getParameterTypes().length > 0){
-					System.out.println("Found aruments for " + s);
-					
-				}else{ // No constructor args (Assume it's a gadget)
-					gadgetFromClass = (Gadget)constr.newInstance();
-				}
-				 
-				//addGadget(gadgetFromClass);
-				System.out.println("Just added a gadget " + gadgetFromClass);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+	public static String getNmsVersion(){
+		return nmsVersion;
 	}
 }

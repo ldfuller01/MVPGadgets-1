@@ -50,7 +50,7 @@ public class DisguiseListener implements Listener{
 			} catch (NullPointerException ex){ return; }
 			
 			if (event.getCurrentItem().hasItemMeta()){
-				for (EntityDisguise d: disguiseGadget.getDisguiseList())
+				for (EntityDisguises d: disguiseGadget.getDisguiseList())
 					if (d.getName(plugin).equals(event.getCurrentItem().getItemMeta().getDisplayName())
 							|| event.getCurrentItem().getItemMeta().getDisplayName().equals("Remove Disguise")){
 						disguise((Player)event.getWhoClicked(), event.getCurrentItem().getItemMeta().getDisplayName());
@@ -107,14 +107,20 @@ public class DisguiseListener implements Listener{
 			p.sendMessage(plugin.getMessageFromConfig("Messages.Disguises.UPDATED").replace("{ENTITY}", type.getName(plugin)));
 		}else{
 			//Add them with a disguise
-			disguised.put(p, DisguiseFactory.getDisguiseFor(p, type, MVPGadgets.nmsVersion));
+			AbstractDisguise playerDisguise = DisguiseFactory.getDisguiseFor(p, type, MVPGadgets.getNmsVersion() );
+			
+			if (playerDisguise != null)
+				disguised.put( p, playerDisguise );
+			//else, they should have already received a player#message telling them what went wrong.
 			
 			p.sendMessage(plugin.getMessageFromConfig("Messages.Disguises.DISGUISED").replace("{ENTITY}", type.getName(plugin)));
 		}
 		
 		// Bukkit.broadcastMessage(disguised.get(p).getDisguise().getClassName());
 		
-		disguised.get(p).updateDisguise(Bukkit.getOnlinePlayers());
+		if (disguised.containsKey(p)){
+			disguised.get(p).updateDisguise(Bukkit.getOnlinePlayers());
+		}
 		
 	}
 	

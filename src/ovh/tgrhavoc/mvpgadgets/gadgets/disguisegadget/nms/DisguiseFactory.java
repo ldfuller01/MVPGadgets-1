@@ -25,11 +25,11 @@ public class DisguiseFactory {
 			//version can be implemented via nms
 			ex.printStackTrace();
 			player.sendMessage("Hello! Sorry, but version " + version
-					+ " of CraftBukkit/Spigot doesn't seem to be supported by your server!");
+					+ " of CraftBukkit/Spigot doesn't seem to be supported by our plugin!");
 			return null;
 		}
 		
-		player.sendMessage("Null");
+		player.sendMessage("Null. Seriously. If you see this message, something bad has screwed up... And I mean something HUGE.");
 		return null;
 	}
 
